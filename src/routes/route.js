@@ -9,6 +9,12 @@ router.get("/test-me", function (req, res) {
 
 router.post("/createUser", UserController.createUser  )
 
+
 router.get("/getUsersData", UserController.getUsersData)
 
-module.exports = router;
+router.post('/create-book-novel', UserController.createBook)
+
+router.get('/book-data', UserController.getbookdata)
+
+module.exports = router;   
+
