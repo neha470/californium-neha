@@ -1,140 +1,98 @@
-const { count } = require("console")
-const { ReadStream } = require("fs")
-const { userInfo } = require("os")
-const bookModel = require("../models/bookModel")
-const BookModel = require("../models/bookModel")
+const myBook = require('../models/newBook')
+const MyAuthor = require('../models/newAuthor')
+const MyPublisher = require('../models/newPublisher')
+const mongoose = require('mongoose')
+const { isValidObjectId } = require("mongoose")
+const ObjectId = mongoose.Schema.Types.ObjectId
 
 
-
-const getBooksData = async function(req, res) {
-
-    // let allBooks= await BookModel.find( ).count() // COUNT
-
-    // let allBooks= await BookModel.find( { authorName : "Chetan Bhagat" , isPublished: true  } ) // AND
-
-    // let allBooks= await BookModel.find( { 
-    //     $or: [ {authorName : "Chetan Bhagat" } , { isPublished: true } , {  "year": 1991 }]
-    // } ).select( { bookName: 1, authorName: 1, _id: 0})n // SELECT keys that we want
-
-    // let allBooks= await BookModel.find().sort( { sales: -1 }) // SORT
-
-    // PAGINATION 
-    // let page= req.query.page
-    // let allBooks= await BookModel.find().skip(3 * (page-1)).limit(3)
-
-    // let allBooks= await BookModel.find().sort({ sales: -1 }).skip(3 * (page-1)).limit(3).select({ bookName: 1, authorName: 1, _id: 0} )
-
-
-    // let allBooks= await BookModel.find({ sales: { $eq:  137 }  }) 
-    // let allBooks= await BookModel.find({ sales: { $ne:  137 }  }) 
-    // let allBooks= await BookModel.find({ sales: { $gt:  50 }  }) 
-    // let allBooks= await BookModel.find({ sales: { $lt:  50 }  }) 
-    // let allBooks= await BookModel.find({ sales: { $lte:  50 }  }) 
-    // let allBooks= await BookModel.find({ sales: { $gte:  50 }  }) 
-
-    // let allBooks= await BookModel.find({     sales : { $in: [10, 17, 82] }     }).count() 
-    // sales : { $in: [10, 17, 82] }
-
-    // let allBooks= await BookModel.find({     sales : { $nin: [ 17, 82, 137] }     }).select({ sales: 1, _id:0})
-
-    //  let allBooks= await BookModel.find({     $and: [{sales : {$gt: 20}} , [sales:  {$lt: 100}]]    })  //sales is between 20 and 100.... sales > 20 AND sales <100
-    //  let allBooks= await BookModel.find({     sales : {$gt: 20, $lt: 100}   })  //sales is between 20 and 100.... sales > 20 AND sales <100
-
-
-    //  let allBooks= await BookModel.findById("621c60a6b16c9e6bf2736e33") 
-    //  let allBooks= await BookModel.findOne( {sales: 10}) 
-    //  let allBooks= await BookModel.find( {sales: 10}) 
-
-
-
-    // //  update (not covered: - findByIdAndUpdate | updateOne )
-    // let allBooks= await BookModel.update(   
-    //     {  sales: {$gt: 10}  }, //condition
-    //     { $set: { isPublished: true} } // the change that you want to make
-    //     ) 
-
-
-
-    // REGEX
-    // let allBooks= await BookModel.find( { bookName:  /^Int/  }) 
-    // let allBooks= await BookModel.find( { bookName:  /^INT/i  }) 
-    // let allBooks= await BookModel.find( { bookName:  /5$/  }) 
-    // let allBooks= await BookModel.find( { bookName:  /.*Programming.*/i  }) 
-
-    // ASYNC AWAIT
-
-    // let a= 2+4
-    // a= a + 10
-    // console.log(a)
-    // let allBooks= await BookModel.find( )  //normally this is an asynchronous call..but await makes it synchronous
-
-
-    // WHEN AWAIT IS USED: - database + axios
-    //  AWAIT can not be used inside forEach , map and many of the array functions..BE CAREFUL
-    // console.log(allBooks)
-    // let b = 14
-    // b = b + 10
-    // console.log(b)
-
+const createAuthor = async function(req, res) {
+    let author = req.body
+    let authorCreated = await MyAuthor.create(author)
+    res.send({ data: authorCreated })
 }
 
+
+const createPublisher = async function(req, res) {
+    let publisher = req.body
+    let publisherCreated = await MyPublisher.create(publisher)
+    res.send({ data: publisherCreated })
+}
+
+
+// const createBook = async function(req, res) {
+//     let { author, publisher } = req.body
+//     if (!author) {
+//         return res.send("author id required")
+//     }
+//     if (!publisher) {
+//         return res.send("publisher id required")
+//     }
+//     if (MyAuthor._id == !author.match(/^[0-9a-fA-F]{24}$/)) {
+//         return res.send("author id not match")
+//     }
+//     if (!publisher.match(/^[0-9a-fA-F]{24}$/)) {
+//         return res.send("publisher id not match")
+//     }
+//     let book = req.body
+//     let savedBook = await myBook.create(book)
+//     res.send({ data: savedBook })
+// }
 const createBook = async function(req, res) {
+
     let data = req.body
+    let { author, publisher } = data
+    if (!author) { return res.send("author id required") }
+    if (!publisher) { return res.send("publisher id required") }
 
-    let savedData = await BookModel.create(data)
-    res.send({ msg: savedData })
-}
+    let checkAuthor = await MyAuthor.findById(data.author)
+    if (!checkAuthor) return res.send("no author data found")
 
+    let checkPublisher = await MyPublisher.findById(data.publisher)
+    if (!checkPublisher) return res.send("no publisher data found")
 
-//------------------------------------  get all books
-let bookLists = async function(req, res) {
-    let allBooks = await BookModel.find().select({ bookName: 1, authorName: 1, _id: 0 }) //list of book name 
-    res.send({ msg: allBooks })
-}
-
-
-
-
-//------------------   input year 
-let getBooksInYear = async function(req, res) {
-    let year = req.query
-    let allBooks = await BookModel.find(year)
-    res.send({ msg: allBooks })
-}
-
-let getParticularBooks = async function(req, res) {
-    let getData = req.body
-    let showParticularBooks = await BookModel.find(getData)
-    res.send({ msg: showParticularBooks })
-}
+    let bookCreated = await myBook.create(data)
+    res.send({ data: bookCreated })
 
 
-//-----------------------  getXINR book
-let getXINRBooks = async function(req, res) {
-    let allBooks = await BookModel.find({
-        $or: [{ "price.indianPrice": "Rs. 200" }, { "price.indianPrice": "Rs. 400" },
-            { "price.indianPrice": "Rs. 100" }
-        ]
-    })
-    res.send({ msg: allBooks })
 }
 
 
 
-//------------------------------------- available stock or gt 500
+const getBooksWithDetailes = async function(req, res) {
 
-let getRandomBooks = async function(req, res) {
-    let allBooks = await BookModel.find({
-        $or: [{ stockAvailable: true }, { totalPages: { $gt: 500 } }]
-    })
-    res.send({ msg: allBooks })
+    let specificBook = await myBook.find().populate('author').populate('publisher')
+    res.send({ data: specificBook })
+
 }
 
+
+const findId = async function(req, res) {
+
+    let findBookByPublisher = await MyPublisher.find({ name: { $in: ["Penguin", "HarperCollins"] } }).select({ _id: 1 })
+        //const authorId = await MyAuthor.find({ rating: { $gt: 3.5 } }).select({ _id: 1 })
+    const arrOfPublisherId = findBookByPublisher.map(publisher => publisher._id)
+    const result = await myBook.updateMany({ publisher: { $in: arrOfPublisherId } }, { $set: { isHardCover: true }, new: true })
+        //const updatePrice = await myBook.updateOne({ rating: [authorId] }, { $inc: { price: 10 }, new: true })
+    res.send(result)
+
+}
+
+// const increase = async function(req, res) {
+
+//     const authorId = await MyAuthor.find({ rating: { $gt: 3.5 } })
+//     let arr = []
+//     for (let i = 0; i < authorId.length; i++) {
+//         const updatePrice = await myBook.updateMany({ author: authorId[i]._id }, { $inc: { price: 10 } })
+//         arr.push(updatePrice)
+//         return res.send(arr)
+//     }
+// }
+
+
+module.exports.createAuthor = createAuthor
+module.exports.createPublisher = createPublisher
 module.exports.createBook = createBook
-module.exports.getBooksData = getBooksData
-
-module.exports.bookLists = bookLists
-module.exports.getParticularBooks = getParticularBooks
-module.exports.getBooksInYear = getBooksInYear
-module.exports.getXINRBooks = getXINRBooks
-module.exports.getRandomBooks = getRandomBooks
+module.exports.getBooksWithDetailes = getBooksWithDetailes
+module.exports.findId = findId
+// module.exports.increase = increase
