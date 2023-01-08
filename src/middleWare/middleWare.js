@@ -47,32 +47,3 @@ const authorization = (req, res, next) => {
 module.exports.authorization=authorization
 
 module.exports.authentication=authentication
-
-
-
-
-
-/// delete by quwer
-
-
-const  deleteByQuery = async function (req, res) {
-    try {
-        let queryData = (req.query.category ||req.query.author ||req.query.tags )
-            if ( !queryData 
-                
-                
-              let authorid = req.query.authorId 
-              let categoryid = req.query.category
-              let tags = req.query.tags 
-                  if (data){
-                    await blogModel.updateMany ({obj}),
-                    {isDeleted :true, deletedAt:Datenow()}
-                  }
-                  return res.status(200).send({status: true, msg: "blog deleted successfully" })
-                  else{
-                    return res.status(404).send({status:false, msg: "the givn data is invalid" })
-                    catch(error){
-
-                  }
-         
-}
