@@ -10,7 +10,7 @@ const {
 } = require("../validation/validation");
 
 //======= Create Intern Data
-const createIntern = async (req, res) => {
+const createIntern = async (req, res) => { 
   try {
     const data = req.body;
 
