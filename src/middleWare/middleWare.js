@@ -1,5 +1,7 @@
-const jwt= require("jsonwebtoken");
-const blogModel = require("../models/blogModel");
+
+
+const jwt= require("jsonwebtoken")
+const blogModel= require("../models/blogModel")
 
 
 const authentication = function (req, res, next) {
@@ -9,8 +11,8 @@ const authentication = function (req, res, next) {
         if (!token) return res.status(400).send({ status: false, msg: "token must be present" });
 
         let decodedToken = jwt.verify(token, "group-18-key");
+        req.decodedToken= decodedToken
 
-        req.decodedToken = decodedToken
         if (!decodedToken) return res.status(400).send({ status: false, msg: "token is invalid" });
         else {
 
